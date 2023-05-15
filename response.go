@@ -14,4 +14,5 @@ type ClientTokenResponse struct {
 
 type ClientAuthResponse struct {
 	Url	string	`json:"url"`
+	Verifier	string	`json:"verifier"`
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -41,6 +42,10 @@ func getAccessToken(clientId string, code string, verifier string, redirectUri s
 		return "", err
 	}
 
+	if response.StatusCode != http.StatusOK {
+		return "", errors.New("token response is wrong")
+	}
+
 	var tokenResponse TokenResponse 
 
 	if err := json.NewDecoder(response.Body).Decode(&tokenResponse); err != nil {
@@ -52,7 +57,7 @@ func getAccessToken(clientId string, code string, verifier string, redirectUri s
 
 
 
-func getAuthUrl(clientId string, redirectUrl string) (string, error) {
+func getAuthUrl(clientId string, redirectUrl string) (*ClientAuthResponse, error) {
 	
 	verifier := generateCodeVerifier()
 	challenge := generateCodeChallenge(verifier)
@@ -66,7 +71,12 @@ func getAuthUrl(clientId string, redirectUrl string) (string, error) {
 		"code_challenge": {challenge},
 	}
 
-	return AUTHORIZE_URL + params.Encode(), nil
+	authUrl := AUTHORIZE_URL + params.Encode()
+
+	return &ClientAuthResponse{
+		Url: authUrl,
+		Verifier: verifier,
+	}, nil
 } 
 
 func getUserProfile(token string) (*UserProfile, error) {

@@ -10,15 +10,11 @@ import (
 
 func getAuth(c *gin.Context) {
 
-	authUrl, err := getAuthUrl(CLIENT_ID, CLIENT_REDIRECT)
+	authResponse, err := getAuthUrl(CLIENT_ID, CLIENT_REDIRECT)
 
 	if err != nil {
 		return
 	}
-
-	authResponse := &ClientAuthResponse{
-		Url: authUrl,
-	}	
 
 	c.IndentedJSON(http.StatusCreated, authResponse)
 
