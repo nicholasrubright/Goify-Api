@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -17,8 +18,7 @@ const (
 
 
 // Spotify API Endpoints
-
-func getAccessToken(clientId string, code string, verifier string, redirectUri string) (string, error) {
+func getAccessToken(clientId string, code string, verifier string, redirectUri string) (*ClientTokenResponse, error) {
 
 	formData := url.Values{
 		"client_id": {clientId},
@@ -31,7 +31,7 @@ func getAccessToken(clientId string, code string, verifier string, redirectUri s
 	request, err := http.NewRequest("POST", TOKEN_URL, strings.NewReader(formData.Encode()))
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -39,25 +39,29 @@ func getAccessToken(clientId string, code string, verifier string, redirectUri s
 	response, err := http.DefaultClient.Do(request)
 
 	if err != nil {
-		return "", err
+		fmt.Println("HTTP Request failed", err)
+		return nil, err
 	}
 
-	if response.StatusCode != http.StatusOK {
-		return "", errors.New("token response is wrong")
+	statusOk := response.StatusCode >= 200 && response.StatusCode < 300
+
+	if !statusOk {
+		fmt.Println("Non-Ok HTTP status: ", response.StatusCode)
+		return nil, errors.New("token response is wrong")
 	}
 
-	var tokenResponse TokenResponse 
+	var clientTokenResponse ClientTokenResponse 
 
-	if err := json.NewDecoder(response.Body).Decode(&tokenResponse); err != nil {
-		return "", err
+	if err := json.NewDecoder(response.Body).Decode(&clientTokenResponse); err != nil {
+		return nil, err
 	}
 
-	return tokenResponse.Token, nil
+	return &clientTokenResponse, nil
 }
 
 
 
-func getAuthUrl(clientId string, redirectUrl string) (*ClientAuthResponse, error) {
+func getAuthUrl(clientId string, redirectUrl string) (*ClientAuthUrlResponse, error) {
 	
 	verifier := generateCodeVerifier()
 	challenge := generateCodeChallenge(verifier)
@@ -73,7 +77,7 @@ func getAuthUrl(clientId string, redirectUrl string) (*ClientAuthResponse, error
 
 	authUrl := AUTHORIZE_URL + params.Encode()
 
-	return &ClientAuthResponse{
+	return &ClientAuthUrlResponse{
 		Url: authUrl,
 		Verifier: verifier,
 	}, nil

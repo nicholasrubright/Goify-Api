@@ -22,13 +22,13 @@ func getAuth(c *gin.Context) {
 
 func getProfile(c *gin.Context) {
 
-	var tokenRequest ClientTokenRequest
+	var clientProfileRequest ClientProfileRequest
 
-	if err := c.BindJSON(&tokenRequest); err != nil {
+	if err := c.BindJSON(&clientProfileRequest); err != nil {
 		return
 	}
 
-	profile, err := getUserProfile(tokenRequest.Token)
+	profile, err := getUserProfile(clientProfileRequest.Token)
 
 	if err != nil {
 		return
@@ -40,22 +40,17 @@ func getProfile(c *gin.Context) {
 
 func getToken(c *gin.Context) {
 	
-	var tokenResponse ClientTokenResponse
+	var clientTokenRequest ClientTokenRequest
 
-	if err := c.BindJSON(&tokenResponse); err != nil {
+	if err := c.BindJSON(&clientTokenRequest); err != nil {
 		return
 	}
 
-	token, err := getAccessToken(CLIENT_ID, tokenResponse.Code, tokenResponse.Verifier, CLIENT_REDIRECT)
+	clientTokenResponse, err := getAccessToken(CLIENT_ID, clientTokenRequest.Code, clientTokenRequest.Verifier, CLIENT_REDIRECT)
 
 	if err != nil {
 		return
 	}
 
-	res := struct {
-		Token	string	`json:"token"`
-	} { Token: token }
-
-	c.IndentedJSON(http.StatusOK, res)
-
+	c.IndentedJSON(http.StatusOK, clientTokenResponse)
 }
