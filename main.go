@@ -28,6 +28,4 @@ func main() {
 	router.GET("/api/profile", getProfile)
 
 	router.Run("localhost:8080")
-
-
 }

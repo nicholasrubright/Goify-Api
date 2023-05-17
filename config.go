@@ -10,6 +10,7 @@ var (
 	CLIENT_ID = ""
 	CLIENT_REDIRECT = ""
 	CLIENT_URL = ""
+	CLIENT_SECRET = ""
 )
 
 
@@ -19,4 +20,5 @@ func Init() {
 	CLIENT_ID = os.Getenv("CLIENT_ID")
 	CLIENT_REDIRECT = os.Getenv("CLIENT_REDIRECT")
 	CLIENT_URL = os.Getenv("CLIENT_URL")
+	CLIENT_SECRET = os.Getenv("CLIENT_SECRET")
 }

@@ -28,13 +28,20 @@ func getProfile(c *gin.Context) {
 		return
 	}
 
-	profile, err := getUserProfile(clientProfileRequest.Token)
+	spotifyProfileResponse, spotifyErrorResponse, err := getUserProfile(clientProfileRequest.Token)
 
 	if err != nil {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, profile)
+	if spotifyProfileResponse != nil {
+		c.IndentedJSON(http.StatusOK, spotifyProfileResponse)
+	} else if spotifyErrorResponse != nil {
+		c.IndentedJSON(spotifyErrorResponse.Error.Status, spotifyErrorResponse)
+	} else {
+		return
+	}
+	
 
 }
 
@@ -46,11 +53,17 @@ func getToken(c *gin.Context) {
 		return
 	}
 
-	clientTokenResponse, err := getAccessToken(CLIENT_ID, clientTokenRequest.Code, clientTokenRequest.Verifier, CLIENT_REDIRECT)
+	clientTokenResponse, spotifyAuthorizationErrorResponse, err := getAccessToken(CLIENT_ID, clientTokenRequest.Code, CLIENT_REDIRECT)
 
 	if err != nil {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, clientTokenResponse)
+	if clientTokenResponse != nil {
+		c.IndentedJSON(http.StatusOK, clientTokenResponse)
+	} else if spotifyAuthorizationErrorResponse != nil {
+		c.IndentedJSON(http.StatusForbidden, spotifyAuthorizationErrorResponse)
+	} else {
+		return
+	}
 }

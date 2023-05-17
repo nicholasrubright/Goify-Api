@@ -7,14 +7,15 @@ type ClientTokenResponse struct {
 
 type ClientAuthUrlResponse struct {
 	Url		string		`json:"url"`
-	Verifier	string	`json:"verifier"`
 }
 
 // Spotify Responses (Responses from the spotify api)
 type SpotifyTokenResponse struct {
 	Token	string	`json:"access_token"`
 	Type	string	`json:"token_type"`
+	Scope	string	`json:"scope"`
 	Expires	int		`json:"expires_in"`
+	RefreshToken	string	`json:"refresh_token"`
 }
 
 type SpotifyAuthorizationErrorResponse struct {
