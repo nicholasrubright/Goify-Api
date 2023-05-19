@@ -1,3 +1,5 @@
+// Server houses all the actual router methods for Gin
+
 package main
 
 import (

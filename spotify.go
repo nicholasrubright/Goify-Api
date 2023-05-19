@@ -83,7 +83,7 @@ func getAuthUrl(clientId string, redirectUrl string) (*ClientAuthUrlResponse, er
 	}, nil
 } 
 
-func getUserProfile(token string) (*UserProfileResponse, *SpotifyErrorResponse, error) {
+func getUserProfile(token string) (*UserProfile, *SpotifyErrorResponse, error) {
 
 	endpointUrl := API_URL + "/v1/me"
 
@@ -110,7 +110,7 @@ func getUserProfile(token string) (*UserProfileResponse, *SpotifyErrorResponse, 
 		return nil, &spotifyErrorResponse, nil
 	}
 
-	var userProfileResponse UserProfileResponse
+	var userProfileResponse UserProfile
 
 	if err := json.NewDecoder(response.Body).Decode(&userProfileResponse); err != nil {
 		return nil, nil, err
@@ -120,6 +120,20 @@ func getUserProfile(token string) (*UserProfileResponse, *SpotifyErrorResponse, 
 
 }
 
+
+func getUserPlaylists(token string) (*UserPlaylists, *SpotifyErrorResponse, error) {
+	// endpointUrl := API_URL
+
+	// request, err := http.NewRequest("GET", endpointUrl, nil)
+
+	// if err != nil {
+	// 	return nil, nil, err
+	// }
+
+	// request.Header.Add("Authorization", "Bearer " + token)
+
+	return nil, nil, nil
+}
 
 // Get User's Playlists
 
