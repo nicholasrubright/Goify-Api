@@ -3,9 +3,15 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	client "github.com/goify-api/models/client"
+)
+
+const (
+	TOKEN_HEADER = "X-Goifiy-Token"
 )
 
 
@@ -24,13 +30,10 @@ func getAuth(c *gin.Context) {
 
 func getProfile(c *gin.Context) {
 
-	var clientProfileRequest ClientProfileRequest
 
-	if err := c.BindJSON(&clientProfileRequest); err != nil {
-		return
-	}
+	token := c.Request.Header[TOKEN_HEADER][0]
 
-	spotifyProfileResponse, spotifyErrorResponse, err := getUserProfile(clientProfileRequest.Token)
+	spotifyProfileResponse, spotifyErrorResponse, err := getUserProfile(token)
 
 	if err != nil {
 		return
@@ -38,8 +41,10 @@ func getProfile(c *gin.Context) {
 
 	if spotifyProfileResponse != nil {
 		c.IndentedJSON(http.StatusOK, spotifyProfileResponse)
+		return
 	} else if spotifyErrorResponse != nil {
 		c.IndentedJSON(spotifyErrorResponse.Error.Status, spotifyErrorResponse)
+		return
 	} else {
 		return
 	}
@@ -49,15 +54,19 @@ func getProfile(c *gin.Context) {
 
 func getToken(c *gin.Context) {
 	
-	var clientTokenRequest ClientTokenRequest
+	var clientTokenRequest client.ClientTokenRequest
 
 	if err := c.BindJSON(&clientTokenRequest); err != nil {
+		log.Println("Error getting json from client token request")
+		log.Println(err)
 		return
 	}
 
 	clientTokenResponse, spotifyAuthorizationErrorResponse, err := getAccessToken(CLIENT_ID, clientTokenRequest.Code, CLIENT_REDIRECT)
 
 	if err != nil {
+		log.Println("Error when getting client token response")
+		log.Println(err)
 		return
 	}
 
@@ -66,6 +75,7 @@ func getToken(c *gin.Context) {
 	} else if spotifyAuthorizationErrorResponse != nil {
 		c.IndentedJSON(http.StatusForbidden, spotifyAuthorizationErrorResponse)
 	} else {
+		log.Println("Error returning json from getToken")
 		return
 	}
 }

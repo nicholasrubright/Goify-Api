@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	clientModels "github.com/goify-api/models/client"
+	spotifyModels "github.com/goify-api/models/spotify"
 )
 
 
@@ -13,11 +16,13 @@ const (
 	API_URL = "https://api.spotify.com/v1"
 	AUTHORIZE_URL = "https://accounts.spotify.com/authorize?"
 	TOKEN_URL	= "https://accounts.spotify.com/api/token"
+
+	SCOPE = "user-read-private user-read-email"
 )
 
 
 // Spotify API Endpoints
-func getAccessToken(clientId string, code string, redirectUri string) (*ClientTokenResponse, *SpotifyAuthorizationErrorResponse, error) {
+func getAccessToken(clientId string, code string, redirectUri string) (*clientModels.ClientTokenResponse, *spotifyModels.SpotifyAuthorizationErrorResponse, error) {
 
 	formData := url.Values{
 		"grant_type": {"authorization_code"},
@@ -40,7 +45,7 @@ func getAccessToken(clientId string, code string, redirectUri string) (*ClientTo
 	if checkStatus(response, err) != nil {
 		fmt.Println("There was a problem making the request")
 
-		var spotifyAuthorizationErrorResponse SpotifyAuthorizationErrorResponse
+		var spotifyAuthorizationErrorResponse spotifyModels.SpotifyAuthorizationErrorResponse
 
 		if err := json.NewDecoder(response.Body).Decode(&spotifyAuthorizationErrorResponse); err != nil {
 			return nil, nil, err
@@ -51,20 +56,20 @@ func getAccessToken(clientId string, code string, redirectUri string) (*ClientTo
 		return nil, &spotifyAuthorizationErrorResponse, nil
 	}
 
-	var spotifyTokenResponse SpotifyTokenResponse 
+	var spotifyTokenResponse spotifyModels.SpotifyTokenResponse 
 
 	if err := json.NewDecoder(response.Body).Decode(&spotifyTokenResponse); err != nil {
 		return nil, nil, err
 	}
 
-	return &ClientTokenResponse{
+	return &clientModels.ClientTokenResponse{
 		Token: spotifyTokenResponse.Token,
 	}, nil, nil
 }
 
 
 
-func getAuthUrl(clientId string, redirectUrl string) (*ClientAuthUrlResponse, error) {
+func getAuthUrl(clientId string, redirectUrl string) (*clientModels.ClientAuthorizationUrlResponse, error) {
 	
 	state := generateAuthState()
 
@@ -72,20 +77,20 @@ func getAuthUrl(clientId string, redirectUrl string) (*ClientAuthUrlResponse, er
 		"client_id": {clientId},
 		"response_type": {"code"},
 		"redirect_uri": {redirectUrl},
-		"scope": {"user-read-email user-read-private"},
+		"scope": {SCOPE},
 		"state": {state},
 	}
 
 	authUrl := AUTHORIZE_URL + params.Encode()
 
-	return &ClientAuthUrlResponse{
+	return &clientModels.ClientAuthorizationUrlResponse{
 		Url: authUrl,
 	}, nil
 } 
 
-func getUserProfile(token string) (*UserProfile, *SpotifyErrorResponse, error) {
+func getUserProfile(token string) (*clientModels.ClientUserProfileResponse, *spotifyModels.SpotifyErrorResponse, error) {
 
-	endpointUrl := API_URL + "/v1/me"
+	endpointUrl := API_URL + "/me"
 
 	request, err := http.NewRequest("GET", endpointUrl, nil)
 
@@ -100,7 +105,7 @@ func getUserProfile(token string) (*UserProfile, *SpotifyErrorResponse, error) {
 	if checkStatus(response, err) != nil {
 		fmt.Println("There was a problem making the request")
 
-		var spotifyErrorResponse SpotifyErrorResponse
+		var spotifyErrorResponse spotifyModels.SpotifyErrorResponse
 
 		if err := json.NewDecoder(response.Body).Decode(&spotifyErrorResponse); err != nil {
 			return nil, nil, err
@@ -110,18 +115,24 @@ func getUserProfile(token string) (*UserProfile, *SpotifyErrorResponse, error) {
 		return nil, &spotifyErrorResponse, nil
 	}
 
-	var userProfileResponse UserProfile
+	var userProfileResponse spotifyModels.SpotifyCurrentUserProfileResponse
 
 	if err := json.NewDecoder(response.Body).Decode(&userProfileResponse); err != nil {
 		return nil, nil, err
 	}
 
-	return &userProfileResponse, nil, nil
+
+	clientProfileResponse := &clientModels.ClientUserProfileResponse{
+		Name: userProfileResponse.DisplayName,
+		Images: userProfileResponse.Images,
+	}
+
+	return clientProfileResponse, nil, nil
 
 }
 
 
-func getUserPlaylists(token string) (*UserPlaylists, *SpotifyErrorResponse, error) {
+func getUserPlaylists(token string) (*spotifyModels.SpotifyCurrentUserPlaylistsResponse, *spotifyModels.SpotifyErrorResponse, error) {
 	// endpointUrl := API_URL
 
 	// request, err := http.NewRequest("GET", endpointUrl, nil)

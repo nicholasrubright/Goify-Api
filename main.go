@@ -10,10 +10,12 @@ import (
 
 func main() {
 	
+	// Initialize Config
 	Init()
 
 	router := gin.Default()
 
+	// Set CORS Policiy
 	router.Use(cors.New(cors.Config{
         AllowOrigins:     []string{CLIENT_URL},
         AllowMethods:     []string{"GET,POST"},
@@ -23,9 +25,12 @@ func main() {
         MaxAge: 12 * time.Hour,
     }))
 
+	// Define Routes
 	router.GET("/api/auth", getAuth)
 	router.POST("/api/token", getToken)
 	router.GET("/api/profile", getProfile)
 
+
+	// Run Server
 	router.Run("localhost:8080")
 }
