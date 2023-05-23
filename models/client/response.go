@@ -16,6 +16,6 @@ type ClientTokenResponse struct {
 }
 
 type ClientUserProfileResponse struct {
-	Name	string
-	Images	[]models.Images
+	Name	string				`json:"name"`
+	Images	[]models.Images		`json:"images"`
 }

@@ -30,7 +30,6 @@ func getAuth(c *gin.Context) {
 
 func getProfile(c *gin.Context) {
 
-
 	token := c.Request.Header[TOKEN_HEADER][0]
 
 	spotifyProfileResponse, spotifyErrorResponse, err := getUserProfile(token)
