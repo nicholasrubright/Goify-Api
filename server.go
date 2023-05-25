@@ -116,8 +116,11 @@ func buildPlaylist(c *gin.Context) {
 
 	log.Println("Requests: ", clientCreatePlaylistResponse)
 
-	temp, err := createPlaylist(clientCreatePlaylistResponse.User, clientCreatePlaylistResponse.Name, clientCreatePlaylistResponse.Description, token)
+	newPlaylist, spotifyError, err := createPlaylist(clientCreatePlaylistResponse.User, clientCreatePlaylistResponse.Name, clientCreatePlaylistResponse.Description, token)
 
-	fmt.Println(temp, err)
+	fmt.Println(newPlaylist, spotifyError, err)
+
+
+	
 
 }

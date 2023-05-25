@@ -213,7 +213,7 @@ func transformPlaylist(userplaylistResponse spotifyModels.SpotifyCurrentUserPlay
 }
 
 // Create new Playlists
-func createPlaylist(userId string, name string, description string, token string) (*spotifyModels.SpotifyErrorResponse, error) {
+func createPlaylist(userId string, name string, description string, token string) (*spotifyModels.Items, *spotifyModels.SpotifyErrorResponse, error) {
 
 	endpointUrl := API_URL + "/users/" + userId + "/playlists"
 
@@ -227,7 +227,7 @@ func createPlaylist(userId string, name string, description string, token string
 
 	if err != nil {
 		fmt.Println("Could not marshal playlist request")
-		return nil, err
+		return nil, nil, err
 	}
 
 
@@ -235,7 +235,7 @@ func createPlaylist(userId string, name string, description string, token string
 
 	if err != nil {
 		fmt.Println("Could not make post requet for playlist request")
-		return nil, err
+		return nil, nil, err
 	}
 
 	request.Header.Add("Content-Type", "application/json")
@@ -249,22 +249,59 @@ func createPlaylist(userId string, name string, description string, token string
 		var spotifyErrorResponse spotifyModels.SpotifyErrorResponse
 
 		if err := json.NewDecoder(response.Body).Decode(&spotifyErrorResponse); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		fmt.Println("Error: ", spotifyErrorResponse)
-		return &spotifyErrorResponse, nil
+		return nil, &spotifyErrorResponse, nil
 	}
 
 	var createPlaylistResponse spotifyModels.Items
 
 	if err := json.NewDecoder(response.Body).Decode(&createPlaylistResponse); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	fmt.Println("Response: ", createPlaylistResponse)
 
-	return nil, nil
+	return &createPlaylistResponse, nil, nil
+}
+
+
+func getTracksForPlaylist(playlist_id string, token string) (*spotifyModels.SpotifyPlaylistItemsResponse, *spotifyModels.SpotifyErrorResponse, error)  {
+
+	endpointUrl := API_URL + "/playlists/" + playlist_id + "/tracks"
+
+	request, err := http.NewRequest("GET", endpointUrl, nil)
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	request.Header.Add("Authorization", "Bearer " + token)
+
+	response, err := http.DefaultClient.Do(request)
+
+	if checkStatus(response, err) != nil {
+		fmt.Println("There was a problem making the request")
+
+		var spotifyErrorResponse spotifyModels.SpotifyErrorResponse
+
+		if err := json.NewDecoder(response.Body).Decode(&spotifyErrorResponse); err != nil {
+			return nil, nil, err
+		}
+
+		fmt.Println("Error: ", spotifyErrorResponse)
+		return nil, &spotifyErrorResponse, nil
+	}
+
+	var playlistItemsResponse spotifyModels.SpotifyPlaylistItemsResponse
+
+	if err:= json.NewDecoder(response.Body).Decode(&playlistItemsResponse); err != nil {
+		return nil, nil, err
+	}
+
+	return &playlistItemsResponse, nil, nil
+
 }
 
 
