@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -98,5 +99,25 @@ func getPlaylists(c *gin.Context) {
 	} else {
 		return
 	}
+
+}
+
+func buildPlaylist(c *gin.Context) {
+	token := c.Request.Header[TOKEN_HEADER][0]
+
+
+	var clientCreatePlaylistResponse client.ClientCreatePlaylistResponse
+
+	if err := c.BindJSON(&clientCreatePlaylistResponse); err != nil {
+		log.Println("ERROR GETTING JSON FROM CLIENT CREATE PLAYLIST RESPONSE")
+		log.Println(err)
+		return
+	}
+
+	log.Println("Requests: ", clientCreatePlaylistResponse)
+
+	temp, err := createPlaylist(clientCreatePlaylistResponse.User, clientCreatePlaylistResponse.Name, clientCreatePlaylistResponse.Description, token)
+
+	fmt.Println(temp, err)
 
 }

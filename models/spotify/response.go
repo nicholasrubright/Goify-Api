@@ -11,6 +11,8 @@ type SpotifyCurrentUserPlaylistsResponse struct {
 	Items    []Items `json:"items"`
 }
 
+
+// Profile
 type SpotifyCurrentUserProfileResponse struct {
 	Country         string          `json:"country"`
 	DisplayName     string          `json:"display_name"`
@@ -26,6 +28,7 @@ type SpotifyCurrentUserProfileResponse struct {
 	URI             string          `json:"uri"`
 }
 
+// Token
 type SpotifyTokenResponse struct {
 	Token			string	`json:"access_token"`
 	Type			string	`json:"token_type"`
@@ -43,3 +46,4 @@ type SpotifyAuthorizationErrorResponse struct {
 type SpotifyErrorResponse struct {
 	Error SpotifyError `json:"error"`
 }
+

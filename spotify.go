@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -17,7 +18,7 @@ const (
 	AUTHORIZE_URL = "https://accounts.spotify.com/authorize?"
 	TOKEN_URL	= "https://accounts.spotify.com/api/token"
 
-	SCOPE = "user-read-private user-read-email"
+	SCOPE = "user-read-private user-read-email playlist-modify-public playlist-modify-private"
 )
 
 
@@ -132,6 +133,7 @@ func getUserProfile(token string) (*clientModels.ClientUserProfileResponse, *spo
 	clientProfileResponse := &clientModels.ClientUserProfileResponse{
 		Name: userProfileResponse.DisplayName,
 		Images: userProfileResponse.Images,
+		ID: userProfileResponse.ID,
 	}
 
 	return clientProfileResponse, nil, nil
@@ -210,10 +212,61 @@ func transformPlaylist(userplaylistResponse spotifyModels.SpotifyCurrentUserPlay
 
 }
 
-
-
-// Get User's Playlists
-
 // Create new Playlists
+func createPlaylist(userId string, name string, description string, token string) (*spotifyModels.SpotifyErrorResponse, error) {
+
+	endpointUrl := API_URL + "/users/" + userId + "/playlists"
+
+	playlistRequest := spotifyModels.SpotifyCreatePlaylistRequest{
+		Name: name,
+		Description: description,
+		Public: false,
+	}
+
+	requestBody, err := json.Marshal(playlistRequest)
+
+	if err != nil {
+		fmt.Println("Could not marshal playlist request")
+		return nil, err
+	}
+
+
+	request, err := http.NewRequest("POST", endpointUrl, bytes.NewBuffer(requestBody))
+
+	if err != nil {
+		fmt.Println("Could not make post requet for playlist request")
+		return nil, err
+	}
+
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Authorization", "Bearer " + token)
+
+	response, err := http.DefaultClient.Do(request)
+
+	if checkStatus(response, err) != nil {
+		fmt.Println("There was a problem making the request")
+
+		var spotifyErrorResponse spotifyModels.SpotifyErrorResponse
+
+		if err := json.NewDecoder(response.Body).Decode(&spotifyErrorResponse); err != nil {
+			return nil, err
+		}
+
+		fmt.Println("Error: ", spotifyErrorResponse)
+		return &spotifyErrorResponse, nil
+	}
+
+	var createPlaylistResponse spotifyModels.Items
+
+	if err := json.NewDecoder(response.Body).Decode(&createPlaylistResponse); err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Response: ", createPlaylistResponse)
+
+	return nil, nil
+}
+
+
 
 // Add Tracks to a Playlist

@@ -31,6 +31,7 @@ func main() {
 	router.POST("/api/token", getToken)
 	router.GET("/api/profile", getProfile)
 	router.GET("/api/playlists", getPlaylists)
+	router.POST("/api/playlists", buildPlaylist)
 	
 	// Run Server
 	router.Run("localhost:8080")
