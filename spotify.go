@@ -53,6 +53,12 @@ func getAccessToken(clientId string, code string, redirectUri string) (*clientMo
 
 		fmt.Println("Error: ", spotifyAuthorizationErrorResponse)
 
+
+		// if spotifyAuthorizationErrorResponse.Error == "invalid_grant" && past_token != "" {
+		// 	token, err := getRefreshToken(past_token)
+		// }
+
+
 		return nil, &spotifyAuthorizationErrorResponse, nil
 	}
 
@@ -79,6 +85,7 @@ func getAuthUrl(clientId string, redirectUrl string) (*clientModels.ClientAuthor
 		"redirect_uri": {redirectUrl},
 		"scope": {SCOPE},
 		"state": {state},
+		"show_dialog": {"true"},
 	}
 
 	authUrl := AUTHORIZE_URL + params.Encode()
@@ -132,19 +139,78 @@ func getUserProfile(token string) (*clientModels.ClientUserProfileResponse, *spo
 }
 
 
-func getUserPlaylists(token string) (*spotifyModels.SpotifyCurrentUserPlaylistsResponse, *spotifyModels.SpotifyErrorResponse, error) {
-	// endpointUrl := API_URL
 
-	// request, err := http.NewRequest("GET", endpointUrl, nil)
+func getUserPlaylists(token string) (*clientModels.ClientUserPlaylistsResponse, *spotifyModels.SpotifyErrorResponse, error) {
+	
+	endpointUrl := API_URL + "/me/playlists"
 
-	// if err != nil {
-	// 	return nil, nil, err
-	// }
+	request, err := http.NewRequest("GET", endpointUrl, nil)
 
-	// request.Header.Add("Authorization", "Bearer " + token)
+	if err != nil {
+		return nil, nil, err
+	}
 
-	return nil, nil, nil
+	request.Header.Add("Authorization", "Bearer " + token)
+
+	response, err := http.DefaultClient.Do(request)
+
+	if checkStatus(response, err) != nil {
+		fmt.Println("There was a problem making the request")
+
+		var spotifyErrorResponse spotifyModels.SpotifyErrorResponse
+
+		if err := json.NewDecoder(response.Body).Decode(&spotifyErrorResponse); err != nil {
+			return nil, nil, err
+		}
+
+		fmt.Println("Error: ", spotifyErrorResponse)
+		return nil, &spotifyErrorResponse, nil
+	}
+
+	var userPlaylistsResponse spotifyModels.SpotifyCurrentUserPlaylistsResponse
+
+	if err:= json.NewDecoder(response.Body).Decode(&userPlaylistsResponse); err != nil {
+		return nil, nil, err
+	}
+
+	clientUserPlaylistResponse, _ := transformPlaylist(userPlaylistsResponse)
+
+
+
+
+	return clientUserPlaylistResponse, nil, nil
 }
+
+
+
+// Turn playlists into response
+func transformPlaylist(userplaylistResponse spotifyModels.SpotifyCurrentUserPlaylistsResponse) (*clientModels.ClientUserPlaylistsResponse, error) {
+
+	playlistResponse := clientModels.ClientUserPlaylistsResponse{
+		Limit: userplaylistResponse.Limit,
+		Next: userplaylistResponse.Next,
+		Offset: userplaylistResponse.Offset,
+		Previous: userplaylistResponse.Previous,
+		Total: userplaylistResponse.Total,
+	}
+
+	var playlists []clientModels.ClientPlaylistResponse
+
+	for _, item := range userplaylistResponse.Items {
+		playlists = append(playlists, clientModels.ClientPlaylistResponse{
+			ID: item.ID,
+			Images: item.Images,
+			Name: item.Name,
+		})
+	}
+
+	playlistResponse.Playlists = playlists
+
+	return &playlistResponse, nil
+
+}
+
+
 
 // Get User's Playlists
 

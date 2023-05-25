@@ -19,3 +19,18 @@ type ClientUserProfileResponse struct {
 	Name	string				`json:"name"`
 	Images	[]models.Images		`json:"images"`
 }
+
+type ClientUserPlaylistsResponse struct {
+	Limit	int		`json:"limit"`
+	Next	string	`json:"next"`
+	Offset	int		`json:"offset"`
+	Previous	string	`json:"previous"`
+	Total	int		`json:"total"`
+	Playlists	[]ClientPlaylistResponse	`json:"playlists"`
+}
+
+type ClientPlaylistResponse struct {
+	ID	string	`json:"id"`
+	Images	[]models.Images	`json:"images"`
+	Name	string	`json:"name"`
+}
