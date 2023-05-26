@@ -18,6 +18,7 @@ func main() {
 	// Set in server
 	server.CLIENT_ID = CLIENT_ID
 	server.CLIENT_REDIRECT = CLIENT_REDIRECT
+	server.CLIENT_SECRET = CLIENT_SECRET
 
 	router := gin.Default()
 
@@ -41,11 +42,11 @@ func main() {
 	router.POST("/api/token", server.GetAccessToken)
 	
 	// User
-	router.GET("/api/profile", server.GetUserProfile)
+	router.GET("/api/profile", server.GetCurrentUserProfile)
 	
 	// Playlists
-	router.GET("/api/playlists", server.GetUserPlaylists)
-	router.POST("/api/playlists", server.CreatePlaylist)
+	// router.GET("/api/playlists", server.GetUserPlaylists)
+	// router.POST("/api/playlists", server.CreatePlaylist)
 	
 	// Run Server
 	router.Run("localhost:8080")

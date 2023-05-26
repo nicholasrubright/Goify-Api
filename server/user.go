@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,8 @@ func GetCurrentUserProfile(c *gin.Context) {
 		c.IndentedJSON(http.StatusInternalServerError, clientErrorResponse)
 		return
 	} 
+
+	fmt.Println("Client Response: ", clientResponse)
 
 	c.IndentedJSON(http.StatusFound, clientResponse)
 

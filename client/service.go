@@ -59,6 +59,9 @@ func GetCurrentUserProfile(token string) (*models.ClientUserProfileResponse, *mo
 
 	var clientImages []models.ClientImageResponse
 
+	clientImages = make([]models.ClientImageResponse, len(spotifyCurrentUserProfileResponse.Images))
+
+
 	for _, spotifyImageResponse := range spotifyCurrentUserProfileResponse.Images {
 		newClientImage := models.ClientImageResponse{
 			URL: spotifyImageResponse.URL,
@@ -68,11 +71,12 @@ func GetCurrentUserProfile(token string) (*models.ClientUserProfileResponse, *mo
 		clientImages = append(clientImages, newClientImage)
 	}
 
-	return &models.ClientUserProfileResponse{
+	clientCurrentUserProfileResponse := models.ClientUserProfileResponse{
 		ID: spotifyCurrentUserProfileResponse.ID,
 		Name: spotifyCurrentUserProfileResponse.DisplayName,
 		Images: clientImages,
-	}, nil
+	}
+	return &clientCurrentUserProfileResponse, nil
 }
 
 func GetCurrentUserPlaylists(token string) (*models.ClientUserPlaylistsResponse, *models.ClientErrorResponse) {

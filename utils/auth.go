@@ -25,5 +25,5 @@ func GenerateAuthorizationState() string {
 }
 
 func GenerateAuthorizationUrl(parameters url.Values) string {
-	return fmt.Sprintf("%s?%s", AUTHORIZE_URL, parameters.Encode())
+	return fmt.Sprintf("%v?%v", AUTHORIZE_URL, parameters.Encode())
 }

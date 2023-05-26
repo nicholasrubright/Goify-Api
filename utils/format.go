@@ -8,7 +8,7 @@ import (
 
 
 func GetEncodedClientCredentials(clientId string, clientSecret string) string {
-	str := fmt.Sprintf("%s:%s", clientId, clientSecret)
+	str := fmt.Sprintf("%v:%v", clientId, clientSecret)
 	encodedStr := b64.StdEncoding.EncodeToString([]byte(str))
 	return encodedStr
 }
@@ -16,5 +16,5 @@ func GetEncodedClientCredentials(clientId string, clientSecret string) string {
 // Defaults to track
 // Returns string in format: "spotify:track:[track id]"
 func GetSpotifyURIsForAddingToPlaylist(track_id string) string {
-	return fmt.Sprintf("spotify:track:%s", track_id)
+	return fmt.Sprintf("spotify:track:%v", track_id)
 }

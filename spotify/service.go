@@ -88,7 +88,7 @@ func GetAccessToken(clientId string, clientSecret string, code string, redirectU
 
 func GetCurrentUserProfile(token string) (*models.SpotifyCurrentUserProfileResponse, *models.SpotifyErrorResponse, error) {
 
-	url := utils.GetSpotifyAPIUrl("/me")
+	url := utils.GetSpotifyAPIUrl("me")
 
 	request, err := http.NewRequest("GET", url, nil)
 

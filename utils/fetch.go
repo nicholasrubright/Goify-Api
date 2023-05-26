@@ -19,7 +19,7 @@ const (
 
 // Creates the Base API URL
 func GetSpotifyAPIUrl(endpoint string) string {
-	return fmt.Sprintf("%s://%s/%s/%s", api_scheme, api_host, api_version, endpoint)
+	return fmt.Sprintf("%v://%v/%v/%v", api_scheme, api_host, api_version, endpoint)
 }
 
 
@@ -40,5 +40,5 @@ func CheckStatus(response *http.Response, err error) error {
 
 
 func SendEndpointError(endpoint string, err error) {
-	log.Println(fmt.Sprintln("%s Error: \n%s", endpoint, err))
+	log.Println(fmt.Sprintln("%v Error: \n%v", endpoint, err))
 }
