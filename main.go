@@ -5,6 +5,8 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
+	"github.com/goify-api/server"
 )
 
 
@@ -12,6 +14,10 @@ func main() {
 	
 	// Initialize Config
 	Init()
+
+	// Set in server
+	server.CLIENT_ID = CLIENT_ID
+	server.CLIENT_REDIRECT = CLIENT_REDIRECT
 
 	router := gin.Default()
 
@@ -26,12 +32,20 @@ func main() {
     }))
 	
 
+
+
 	// Define Routes
-	router.GET("/api/auth", getAuth)
-	router.POST("/api/token", getToken)
-	router.GET("/api/profile", getProfile)
-	router.GET("/api/playlists", getPlaylists)
-	router.POST("/api/playlists", buildPlaylist)
+	
+	// Authentication & Authorization
+	router.GET("/api/auth", server.GetAuthorizationUrl)
+	router.POST("/api/token", server.GetAccessToken)
+	
+	// User
+	router.GET("/api/profile", server.GetUserProfile)
+	
+	// Playlists
+	router.GET("/api/playlists", server.GetUserPlaylists)
+	router.POST("/api/playlists", server.CreatePlaylist)
 	
 	// Run Server
 	router.Run("localhost:8080")
