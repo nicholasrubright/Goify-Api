@@ -1,6 +1,8 @@
 package client
 
 import (
+	"fmt"
+
 	"github.com/goify-api/client/models"
 	spotify "github.com/goify-api/spotify"
 	"github.com/goify-api/utils"
@@ -82,6 +84,8 @@ func GetCurrentUserProfile(token string) (*models.ClientUserProfileResponse, *mo
 func GetCurrentUserPlaylists(token string) (*models.ClientUserPlaylistsResponse, *models.ClientErrorResponse) {
 	spotifyCurrentUserPlaylistsResponse, spotifyErrorResponse, err := spotify.GetCurrentUserPlaylists(token)
 
+	fmt.Println("Spotify Playlists: ", spotifyCurrentUserPlaylistsResponse)
+
 	if err != nil || spotifyErrorResponse != nil {
 		utils.SendEndpointError("GetCurrentUserPlaylists", err)
 		return nil, &models.ClientErrorResponse{
@@ -92,9 +96,13 @@ func GetCurrentUserPlaylists(token string) (*models.ClientUserPlaylistsResponse,
 
 	var clientPlaylists []models.ClientPlaylistResponse
 
+	clientPlaylists = make([]models.ClientPlaylistResponse, len(spotifyCurrentUserPlaylistsResponse.Items))
+
 	for _, spotifyPlaylistsResponse := range spotifyCurrentUserPlaylistsResponse.Items {
 		
 		var clientPlaylistImage []models.ClientImageResponse
+		clientPlaylistImage = make([]models.ClientImageResponse, len(spotifyPlaylistsResponse.Images))
+
 
 		for _, spotifyPlaylistImageResponse := range spotifyPlaylistsResponse.Images {
 			newClientImage := models.ClientImageResponse {
@@ -114,6 +122,8 @@ func GetCurrentUserPlaylists(token string) (*models.ClientUserPlaylistsResponse,
 
 		clientPlaylists = append(clientPlaylists, newClientPlaylist)
 	}
+
+	fmt.Println("Playlists: ", clientPlaylists)
 
 	return &models.ClientUserPlaylistsResponse {
 		Limit: spotifyCurrentUserPlaylistsResponse.Limit,

@@ -1,4 +1,5 @@
 package models
+
 // Responses from Spotify
 
 // Token
@@ -192,6 +193,22 @@ type SpotifyTrackResponse struct {
 // 	IsLocal bool    `json:"is_local"`
 // 	Track   SpotifyTrackResponse   `json:"track"`
 // }
+
+type SpotifyCreatePlaylistResponse struct {
+	Collaborative bool         `json:"collaborative"`
+	Description   string       `json:"description"`
+	ExternalUrls  SpotifyExternalUrlsResponse `json:"external_urls"`
+	Href          string       `json:"href"`
+	ID            string       `json:"id"`
+	Images        []SpotifyImagesResponse     `json:"images"`
+	Name          string       `json:"name"`
+	Owner         SpotifyOwnerResponse        `json:"owner"`
+	Public        bool         `json:"public"`
+	SnapshotID    string       `json:"snapshot_id"`
+	Tracks        SpotifyTracksResponse       `json:"tracks"`
+	Type          string       `json:"type"`
+	URI           string       `json:"uri"`
+}
 
 
 // Spotify Error Responses

@@ -1,8 +1,10 @@
 package spotify
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -125,7 +127,7 @@ func GetCurrentUserProfile(token string) (*models.SpotifyCurrentUserProfileRespo
 }
 
 func GetCurrentUserPlaylists(token string) (*models.SpotifyCurrentUserPlaylistsResponse, *models.SpotifyErrorResponse, error) {
-	url := utils.GetSpotifyAPIUrl("/me/playlists")
+	url := utils.GetSpotifyAPIUrl("me/playlists")
 
 	request, err := http.NewRequest("GET", url, nil)
 
@@ -161,4 +163,74 @@ func GetCurrentUserPlaylists(token string) (*models.SpotifyCurrentUserPlaylistsR
 	return &spotifyCurrentUserPlaylistsResponse, nil, nil
 }
 
-// func CreatePlaylistForUser(userId string, playlist_name string, playlist_description string, token string) (*models.SpotifyCreatePlaylistRequest, *models.)
+func CreatePlaylistForUser(userId string, playlist_name string, playlist_description string, token string) (*models.SpotifyCreatePlaylistResponse, *models.SpotifyErrorResponse) {
+	url := utils.GetSpotifyAPIUrl(fmt.Sprintln("users/%v/playlists", userId))
+
+	spotifyCreatePlaylistRequest := models.SpotifyCreatePlaylistRequest {
+		Name: playlist_name,
+		Description: playlist_description,
+		Public: false,
+	}
+
+	requestBody, err := json.Marshal(spotifyCreatePlaylistRequest)
+
+	if err != nil {
+		utils.SendEndpointError("CreatePlaylists:Decode", err)
+		return nil, &models.SpotifyErrorResponse{
+			Error: models.SpotifyError{
+				Status: 500,
+				Message: err.Error(),
+			},
+		}
+	}
+
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
+
+	if err != nil {
+		utils.SendEndpointError("CreatePlaylists:Request", err)
+		return nil, &models.SpotifyErrorResponse{
+			Error: models.SpotifyError{
+				Status: 500,
+				Message: err.Error(),
+			},
+		}
+	}
+
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Authorization", "Bearer " + token)
+
+	response, err := http.DefaultClient.Do(request)
+
+	if utils.CheckStatus(response, err) != nil {
+
+		utils.SendEndpointError("CreatePlaylists:Status", err)
+
+		var spotifyErrorResponse models.SpotifyErrorResponse
+
+		if err := json.NewDecoder(response.Body).Decode(&spotifyErrorResponse); err != nil {
+			return nil, &models.SpotifyErrorResponse{
+				Error: models.SpotifyError{
+					Status: 500,
+					Message: err.Error(),
+				},
+			}
+		}
+
+		return nil, &spotifyErrorResponse
+	}
+
+	var spotifyCreatePlaylistResponse models.SpotifyCreatePlaylistResponse
+
+	if err := json.NewDecoder(response.Body).Decode(&spotifyCreatePlaylistResponse); err != nil {
+		return nil, &models.SpotifyErrorResponse{
+			Error: models.SpotifyError{
+				Status: 500,
+				Message: err.Error(),
+			},
+		}
+	}
+
+	
+
+	return &spotifyCreatePlaylistResponse, nil
+}

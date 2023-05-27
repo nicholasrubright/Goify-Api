@@ -45,7 +45,7 @@ func main() {
 	router.GET("/api/profile", server.GetCurrentUserProfile)
 	
 	// Playlists
-	// router.GET("/api/playlists", server.GetUserPlaylists)
+	router.GET("/api/playlists", server.GetUserPlaylists)
 	// router.POST("/api/playlists", server.CreatePlaylist)
 	
 	// Run Server
