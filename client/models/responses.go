@@ -45,6 +45,19 @@ type ClientImageResponse struct {
 	Width	int `json:"width"`
 }
 
+
+// Create Playlist Response
+type ClientCreatePlaylistResponse struct {
+	ID	string	`json:"id"`
+	Name	string	`json:"name"`
+	Tracks	[]ClientCreatePlaylistTrackResponse	`json:"tracks"`
+}
+
+type ClientCreatePlaylistTrackResponse struct {
+	ID	string	`json:"id"`
+	Name	string	`json:"name"`
+}
+
 // Error Responses for Client
 
 type ClientErrorResponse struct {

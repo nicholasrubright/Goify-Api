@@ -128,3 +128,13 @@ func GetCurrentUserPlaylists(token string) (*models.ClientUserPlaylistsResponse,
 		Playlists: clientPlaylists,
 	}, nil
 }
+
+// func CreatePlaylistForUser(userId string, playlist_name string, playlist_description string, token string) (*models.ClientCreatePlaylistResponse, *models.ClientErrorResponse) {
+
+// 	spotifyCreatePlaylistResponse, spotifyErrorResponse := spotify.CreatePlaylistForUser(userId, playlist_name, playlist_description, token)
+
+
+	
+
+
+// }

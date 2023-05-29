@@ -8,7 +8,7 @@ type ClientTokenRequest struct {
 
 
 // Create Playlist
-type ClientCreatePlaylistResponse struct {
+type ClientCreatePlaylistRequest struct {
 	User_ID		string		`json:"user_id"`
 	Name		string		`json:"name"`
 	Description	string		`json:"description"`
