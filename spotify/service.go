@@ -234,3 +234,129 @@ func CreatePlaylistForUser(userId string, playlist_name string, playlist_descrip
 
 	return &spotifyCreatePlaylistResponse, nil
 }
+
+func GetPlaylistItems(playlist_id string, token string) (*models.SpotifyPlaylistItemsResponse, *models.SpotifyErrorResponse) {
+
+	url := utils.GetSpotifyAPIUrl(fmt.Sprintln("playlists/%v/tracks", playlist_id))
+
+	request, err := http.NewRequest("GET", url, nil)
+
+	if err != nil {
+		utils.SendEndpointError("GetPlaylistItems:Request", err)
+		return nil, &models.SpotifyErrorResponse{
+			Error: models.SpotifyError{
+				Status: 500,
+				Message: err.Error(),
+			},
+		}
+	}
+
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Authorization", "Bearer " + token)
+
+	response, err := http.DefaultClient.Do(request)
+
+	if utils.CheckStatus(response, err) != nil {
+
+		utils.SendEndpointError("GetPlaylistItems:Status", err)
+
+		var spotifyErrorResponse models.SpotifyErrorResponse
+
+		if err := json.NewDecoder(response.Body).Decode(&spotifyErrorResponse); err != nil {
+			return nil, &models.SpotifyErrorResponse{
+				Error: models.SpotifyError{
+					Status: 500,
+					Message: err.Error(),
+				},
+			}
+		}
+
+		return nil, &spotifyErrorResponse
+	}
+
+	var spotifyGetPlaylistItems models.SpotifyPlaylistItemsResponse
+
+	if err := json.NewDecoder(response.Body).Decode(&spotifyGetPlaylistItems); err != nil {
+		return nil, &models.SpotifyErrorResponse{
+			Error: models.SpotifyError{
+				Status: 500,
+				Message: err.Error(),
+			},
+		}
+	}
+
+	return &spotifyGetPlaylistItems, nil
+
+}
+
+
+func AddItemsToPlaylist(playlist_id string, track_ids []string, token string) (*models.SpotifyErrorResponse) {
+
+	url := utils.GetSpotifyAPIUrl(fmt.Sprintln("playlists/%v", playlist_id))
+
+	spotifyAddItemsToPlaylistRequest := models.SpotifyAddItemsToPlaylistRequest {
+		URIs: track_ids,
+		Position: 0,
+	}
+
+	requestBody, err := json.Marshal(spotifyAddItemsToPlaylistRequest)
+
+	if err != nil {
+		utils.SendEndpointError("AddItemsToPlaylist:Decode", err)
+		return &models.SpotifyErrorResponse{
+			Error: models.SpotifyError{
+				Status: 500,
+				Message: err.Error(),
+			},
+		}
+	}
+
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
+
+	if err != nil {
+		utils.SendEndpointError("AddItemsToPlaylist:Request", err)
+		return &models.SpotifyErrorResponse{
+			Error: models.SpotifyError{
+				Status: 500,
+				Message: err.Error(),
+			},
+		}
+	}
+
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Authorization", "Bearer " + token)
+
+	response, err := http.DefaultClient.Do(request)
+
+	if utils.CheckStatus(response, err) != nil {
+
+		utils.SendEndpointError("AddItemsToPlaylist:Status", err)
+
+		var spotifyErrorResponse models.SpotifyErrorResponse
+
+		if err := json.NewDecoder(response.Body).Decode(&spotifyErrorResponse); err != nil {
+			return &models.SpotifyErrorResponse{
+				Error: models.SpotifyError{
+					Status: 500,
+					Message: err.Error(),
+				},
+			}
+		}
+
+		return &spotifyErrorResponse
+	}
+
+	var spotifyAddItemsToPlaylistResponse models.SpotifyAddItemsToPlaylistResponse
+
+	if err := json.NewDecoder(response.Body).Decode(&spotifyAddItemsToPlaylistResponse); err != nil {
+		return &models.SpotifyErrorResponse{
+			Error: models.SpotifyError{
+				Status: 500,
+				Message: err.Error(),
+			},
+		}
+	}
+
+	return nil
+
+}

@@ -8,3 +8,10 @@ type SpotifyCreatePlaylistRequest struct {
 	Public	bool	`json:"public"`
 	Description	string	`json:"description"`
 }
+
+
+// Add Items to Playlists
+type SpotifyAddItemsToPlaylistRequest struct {
+	URIs	[]string	`json:"uris"`
+	Position	int		`json:"position"`
+}

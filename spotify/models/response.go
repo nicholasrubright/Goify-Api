@@ -55,6 +55,10 @@ type SpotifyPlaylistItemsResponse struct {
 	Items    []SpotifyPlaylistItemsResponse `json:"items"`
 }
 
+type SpotifyAddItemsToPlaylistResponse struct {
+	SnapshotID	string	`json:"snapshot_id"`
+}
+
 
 // More responses
 

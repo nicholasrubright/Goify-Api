@@ -20,5 +20,4 @@ func GetCurrentUserProfile(c *gin.Context) {
 	} 
 
 	c.IndentedJSON(http.StatusFound, clientResponse)
-
 }
