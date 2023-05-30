@@ -129,12 +129,12 @@ func GetCurrentUserPlaylists(token string) (*models.ClientUserPlaylistsResponse,
 	}, nil
 }
 
-// func CreatePlaylistForUser(userId string, playlist_name string, playlist_description string, token string) (*models.ClientCreatePlaylistResponse, *models.ClientErrorResponse) {
+/*	Combine Playlists
+*	1. Create blank Playlist with name and description
+*	2. Get all tracks from the selected playlists
+*	3. Add each track to the new playlist
+*	4. Return new playlist name and description
+*/
+func CombinePlaylists(playlist_name string, playlist_desc string, playlist_ids []string, token string) {
 
-// 	spotifyCreatePlaylistResponse, spotifyErrorResponse := spotify.CreatePlaylistForUser(userId, playlist_name, playlist_description, token)
-
-
-	
-
-
-// }
+}

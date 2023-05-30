@@ -234,3 +234,11 @@ func CreatePlaylistForUser(userId string, playlist_name string, playlist_descrip
 
 	return &spotifyCreatePlaylistResponse, nil
 }
+
+func GetTracksFromPlaylist(playlist_id string, token string) (*models.SpotifyPlaylistItemsResponse, *models.SpotifyErrorResponse) {
+	return nil, nil
+}
+
+func AddTrackToPlaylist(playlist_id string, track_ids []string, token string) {
+
+}
