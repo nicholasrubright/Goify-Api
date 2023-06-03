@@ -58,6 +58,11 @@ type ClientCreatePlaylistTrackResponse struct {
 	Name	string	`json:"name"`
 }
 
+type ClientCombinePlaylistResponse struct {
+	ID string	`json:"id"`
+	Name	string	`json:"name"`
+}
+
 // Error Responses for Client
 
 type ClientErrorResponse struct {

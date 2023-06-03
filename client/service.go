@@ -129,3 +129,67 @@ func GetCurrentUserPlaylists(token string) (*models.ClientUserPlaylistsResponse,
 	}, nil
 }
 
+func CombinePlaylist(userId string, playlist_name string, playlist_desc string, playlist_ids []string, token string) (*models.ClientCombinePlaylistResponse, *models.ClientErrorResponse) {
+
+	// Create the blank playlist
+	spotifyCreatePlaylistResponse, spotifyErrorResponse := spotify.CreatePlaylistForUser(userId, playlist_name, playlist_desc, token)
+
+	if spotifyErrorResponse != nil {
+		utils.SendEndpointError("CombinePlaylist:CreatePlaylist", nil)
+		return nil, &models.ClientErrorResponse{
+			Error: "CombinePlaylist:CreatePlaylist",
+			Message: "There was a problem creating the playlist",
+		}
+	}
+
+
+	// Get the tracks from the selected playlists
+	var playlist_track_ids []string
+	playlist_track_ids = make([]string, 0)
+
+	for _, id := range playlist_ids {
+
+		spotifyPlaylistItems, spotifyErrorResponse := spotify.GetPlaylistItems(id, token)
+
+		if spotifyErrorResponse != nil {
+			utils.SendEndpointError("CombinePlaylist:GetPlaylistItems", nil)
+			return nil, &models.ClientErrorResponse{
+				Error: "CombinePlaylist:GetPlaylistItems",
+				Message: "There was a problem gettting the playlist items",
+			}
+		}
+
+		for _, item := range spotifyPlaylistItems.Items {
+			playlist_track_ids = append(playlist_track_ids, item.Track.ID)
+		}
+	}
+
+	// Add the tracks to the playlist
+	spotifyErrorResponse = spotify.AddItemsToPlaylist(spotifyCreatePlaylistResponse.ID, playlist_track_ids, token)
+
+	if spotifyErrorResponse != nil {
+		utils.SendEndpointError("CombinePlaylist:AddItemsToPlaylists", nil)
+		return nil, &models.ClientErrorResponse{
+			Error: "CombinePlaylist:AddItemsToPlaylists",
+			Message: "There was a problem adding items to the playlist",
+		}
+	}
+
+
+	spotifyGetPlaylistResponse, spotifyErrorResponse := spotify.GetPlaylist(spotifyCreatePlaylistResponse.ID, token)
+
+	if spotifyErrorResponse != nil {
+		utils.SendEndpointError("CombinePlaylist:GetPlaylistResponse", nil)
+		return nil, &models.ClientErrorResponse{
+			Error: "CombinePlaylist:GetPlaylistResponse",
+			Message: "There was a problem getting the playlist",
+		}
+	}
+
+
+	return &models.ClientCombinePlaylistResponse{
+		ID: spotifyGetPlaylistResponse.ID,
+		Name: spotifyGetPlaylistResponse.Name,
+	}, nil
+
+}

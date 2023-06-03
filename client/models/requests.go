@@ -7,8 +7,8 @@ type ClientTokenRequest struct {
 }
 
 
-// Create Playlist
-type ClientCreatePlaylistRequest struct {
+// Combine Playlist
+type ClientCombinePlaylistRequest struct {
 	User_ID		string		`json:"user_id"`
 	Name		string		`json:"name"`
 	Description	string		`json:"description"`

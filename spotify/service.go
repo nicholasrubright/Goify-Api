@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -126,6 +125,43 @@ func GetCurrentUserProfile(token string) (*models.SpotifyCurrentUserProfileRespo
 	return &spotifyCurrentUserProfileResponse, nil, nil
 }
 
+func GetPlaylist(playlist_id string, token string) (*models.SpotifyItemsResponse, *models.SpotifyErrorResponse) {
+	url := utils.GetSpotifyAPIUrl("playlists/" + playlist_id)
+
+	request, err := http.NewRequest("GET", url, nil)
+
+	if err != nil {
+		utils.SendEndpointError("GetPlaylist:Request", err)
+		return nil, &models.SpotifyErrorResponse{
+			Error: models.SpotifyError{
+				Status: 500,
+				Message: err.Error(),
+			},
+		}
+	}
+
+	request.Header.Add("Authorization", "Bearer " + token)
+
+	response, err := http.DefaultClient.Do(request)
+
+	if utils.CheckStatus(response, err) != nil {
+		var spotifyErrorResponse models.SpotifyErrorResponse
+
+		if err := json.NewDecoder(response.Body).Decode(&spotifyErrorResponse); err != nil {
+			utils.SendEndpointError("GetCurrentUserProfile:Decode", err)
+			return nil, nil
+		}
+
+		utils.SendEndpointError("GetCurrentUserProfile:Status", errors.New(spotifyErrorResponse.Error.Message))
+
+		return nil , &spotifyErrorResponse
+	}
+
+	return nil, nil
+
+
+}
+
 func GetCurrentUserPlaylists(token string) (*models.SpotifyCurrentUserPlaylistsResponse, *models.SpotifyErrorResponse, error) {
 	url := utils.GetSpotifyAPIUrl("me/playlists")
 
@@ -164,7 +200,7 @@ func GetCurrentUserPlaylists(token string) (*models.SpotifyCurrentUserPlaylistsR
 }
 
 func CreatePlaylistForUser(userId string, playlist_name string, playlist_description string, token string) (*models.SpotifyCreatePlaylistResponse, *models.SpotifyErrorResponse) {
-	url := utils.GetSpotifyAPIUrl(fmt.Sprintln("users/%v/playlists", userId))
+	url := utils.GetSpotifyAPIUrl("users/" + userId + "/playlists")
 
 	spotifyCreatePlaylistRequest := models.SpotifyCreatePlaylistRequest {
 		Name: playlist_name,
@@ -235,9 +271,9 @@ func CreatePlaylistForUser(userId string, playlist_name string, playlist_descrip
 	return &spotifyCreatePlaylistResponse, nil
 }
 
-func GetPlaylistItems(playlist_id string, token string) (*models.SpotifyPlaylistItemsResponse, *models.SpotifyErrorResponse) {
+func GetPlaylistItems(playlist_id string, token string) (*models.PlaylistItems, *models.SpotifyErrorResponse) {
 
-	url := utils.GetSpotifyAPIUrl(fmt.Sprintln("playlists/%v/tracks", playlist_id))
+	url := utils.GetSpotifyAPIUrl("playlists/" + playlist_id + "/tracks")
 
 	request, err := http.NewRequest("GET", url, nil)
 
@@ -274,7 +310,7 @@ func GetPlaylistItems(playlist_id string, token string) (*models.SpotifyPlaylist
 		return nil, &spotifyErrorResponse
 	}
 
-	var spotifyGetPlaylistItems models.SpotifyPlaylistItemsResponse
+	var spotifyGetPlaylistItems models.PlaylistItems
 
 	if err := json.NewDecoder(response.Body).Decode(&spotifyGetPlaylistItems); err != nil {
 		return nil, &models.SpotifyErrorResponse{
@@ -292,7 +328,7 @@ func GetPlaylistItems(playlist_id string, token string) (*models.SpotifyPlaylist
 
 func AddItemsToPlaylist(playlist_id string, track_ids []string, token string) (*models.SpotifyErrorResponse) {
 
-	url := utils.GetSpotifyAPIUrl(fmt.Sprintln("playlists/%v", playlist_id))
+	url := utils.GetSpotifyAPIUrl("playlists/" + playlist_id)
 
 	spotifyAddItemsToPlaylistRequest := models.SpotifyAddItemsToPlaylistRequest {
 		URIs: track_ids,
